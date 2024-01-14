@@ -1,4 +1,4 @@
-# Piano Made with React and three.js/React-fiber(three.js)
+# Visualizer Made with React and three.js/React-fiber(three.js)
 3D Enviroment (Canvas and scene) that holds a Visualizer
 
 Little project i made for fun.
