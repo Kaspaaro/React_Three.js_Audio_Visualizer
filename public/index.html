@@ -25,9 +25,16 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>React App</title>
+
   </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+  <script>
+    // Set the SameSite=None; Secure cookie
+    document.cookie = "myCookie=myValue; SameSite=None; Secure";
+  </script>
+
+
+  <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
     <!--
       This HTML file is a template.

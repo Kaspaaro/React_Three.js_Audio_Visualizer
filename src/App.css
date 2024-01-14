@@ -1,7 +1,15 @@
 .App {
   text-align: center;
+  background-color: black;
 }
-
+#programCreds,#audioCreds{
+  position: absolute;
+  z-index: 3;
+  color: white;
+}
+#audioCreds{
+  right: 0;
+}
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -21,7 +29,7 @@
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
+  color: #ffffff;
 }
 
 .App-link {
