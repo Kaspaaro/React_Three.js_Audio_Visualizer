@@ -9,6 +9,7 @@ Made by Kaspar Tullus (Me)
 You cannot use this song anywhere or claim it.
 
 # Instructions
-type "npm start" into the terminal and it should start the website.
+* type in the terminal "npm install"
+* type "npm start" into the terminal and it should start the website.
 
 Enjoy!
