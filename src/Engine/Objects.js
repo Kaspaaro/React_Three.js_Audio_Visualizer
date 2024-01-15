@@ -1,8 +1,7 @@
-import {useEffect, useRef, useState} from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import {useFrame, useLoader} from "@react-three/fiber";
-import {RepeatWrapping, TextureLoader} from "three";
-
-const Objects = ({ audioSrc }) =>{
+import {Color, RepeatWrapping, TextureLoader} from "three";
+const Objects = ({ audioSrc,analyser,audioContext }) =>{
     const keyboardRef = useRef();
     const meshrefBassBlock = useRef();
     const meshrefBassBlockTwo = useRef();
@@ -13,11 +12,9 @@ const Objects = ({ audioSrc }) =>{
     const meshrefxminus = useRef();
     const meshrefyplus = useRef();
     const meshrefyminus = useRef();
-    const [exploded, setExploded] = useState(false);
+    const bgObjectsRef = useRef([]);
+    const bgObjectLightRef = useRef([]);
 
-    // Create an AudioContext
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const analyser = audioContext.createAnalyser();
 
     const roughnessTexture = useLoader(TextureLoader, `${process.env.PUBLIC_URL}/Textures/Obsidian/Obsidianroughness.jpg`);
     const normalTexture = useLoader(TextureLoader, `${process.env.PUBLIC_URL}/Textures/Obsidian/Obsidiannormal.jpg`);
@@ -80,7 +77,6 @@ const Objects = ({ audioSrc }) =>{
         meshrefxplus.current.position.x = 0.3 + scaleFactor
         meshrefyminus.current.position.y = -0.3 - scaleFactor
         meshrefyplus.current.position.y = 0.3 + scaleFactor
-
         //BassSection
         if (bassScaleFactor > 1.6234){
             const targetScale = 0.3 + bassScaleFactor * 2;
@@ -89,42 +85,31 @@ const Objects = ({ audioSrc }) =>{
 
             const t = Math.easeOutCubic(0.1);
             meshrefBassBlock.current.scale.y = lerp(meshrefBassBlock.current.scale.y, targetScale, t)
-            meshrefBassBlock.current.scale.x = lerp(meshrefBassBlock.current.scale.y, targetScale, t)
-            meshrefBassBlock.current.scale.z = lerp(meshrefBassBlock.current.scale.y, targetScale, t)
+            meshrefBassBlock.current.scale.x = lerp(meshrefBassBlock.current.scale.x, targetScale, t)
+            meshrefBassBlock.current.scale.z = lerp(meshrefBassBlock.current.scale.z, targetScale, t)
 
             meshrefBassBlockTwo.current.scale.y = lerp(meshrefBassBlockTwo.current.scale.y, targetScaleTwo, t)
-            meshrefBassBlockTwo.current.scale.x = lerp(meshrefBassBlockTwo.current.scale.y, targetScaleTwo, t)
-            meshrefBassBlockTwo.current.scale.z = lerp(meshrefBassBlockTwo.current.scale.y, targetScaleTwo, t)
+            meshrefBassBlockTwo.current.scale.x = lerp(meshrefBassBlockTwo.current.scale.x, targetScaleTwo, t)
+            meshrefBassBlockTwo.current.scale.z = lerp(meshrefBassBlockTwo.current.scale.z, targetScaleTwo, t)
 
             meshrefBassBlockThree.current.scale.y = lerp(meshrefBassBlockThree.current.scale.y, targetScaleThree, t)
-            meshrefBassBlockThree.current.scale.x = lerp(meshrefBassBlockThree.current.scale.y, targetScaleThree, t)
-            meshrefBassBlockThree.current.scale.z = lerp(meshrefBassBlockThree.current.scale.y, targetScaleThree, t)
+            meshrefBassBlockThree.current.scale.x = lerp(meshrefBassBlockThree.current.scale.x, targetScaleThree, t)
+            meshrefBassBlockThree.current.scale.z = lerp(meshrefBassBlockThree.current.scale.z, targetScaleThree, t)
         }else{
             meshrefBassBlock.current.scale.y = lerp(meshrefBassBlock.current.scale.y, 0, interpolationFactor)
-            meshrefBassBlock.current.scale.x = lerp(meshrefBassBlock.current.scale.y, 0, interpolationFactor)
-            meshrefBassBlock.current.scale.z = lerp(meshrefBassBlock.current.scale.y, 0, interpolationFactor)
+            meshrefBassBlock.current.scale.x = lerp(meshrefBassBlock.current.scale.x, 0, interpolationFactor)
+            meshrefBassBlock.current.scale.z = lerp(meshrefBassBlock.current.scale.z, 0, interpolationFactor)
 
             meshrefBassBlockTwo.current.scale.y = lerp(meshrefBassBlockTwo.current.scale.y, 0, interpolationFactor)
-            meshrefBassBlockTwo.current.scale.x = lerp(meshrefBassBlockTwo.current.scale.y, 0, interpolationFactor)
-            meshrefBassBlockTwo.current.scale.z = lerp(meshrefBassBlockTwo.current.scale.y, 0, interpolationFactor)
+            meshrefBassBlockTwo.current.scale.x = lerp(meshrefBassBlockTwo.current.scale.x, 0, interpolationFactor)
+            meshrefBassBlockTwo.current.scale.z = lerp(meshrefBassBlockTwo.current.scale.z, 0, interpolationFactor)
 
             meshrefBassBlockThree.current.scale.y = lerp(meshrefBassBlockThree.current.scale.y, 0, interpolationFactor)
-            meshrefBassBlockThree.current.scale.x = lerp(meshrefBassBlockThree.current.scale.y, 0, interpolationFactor)
-            meshrefBassBlockThree.current.scale.z = lerp(meshrefBassBlockThree.current.scale.y, 0, interpolationFactor)
+            meshrefBassBlockThree.current.scale.x = lerp(meshrefBassBlockThree.current.scale.x, 0, interpolationFactor)
+            meshrefBassBlockThree.current.scale.z = lerp(meshrefBassBlockThree.current.scale.z, 0, interpolationFactor)
         }
 
-        console.log(bassScaleFactor)
     });
-    const handleClick = () => {
-        setExploded(!exploded);
-
-        setTimeout(() => {
-            setExploded(false);
-        }, 6000);
-
-    };
-
-
 
     useFrame(() => {
         if (keyboardRef.current) {
@@ -133,45 +118,8 @@ const Objects = ({ audioSrc }) =>{
         }
     });
 
-
-    useFrame(() => {
-        if (exploded) {
-            keyboardRef.current.scale.multiplyScalar(0.98);
-            keyboardRef.current.rotation.x += 0.005;
-            keyboardRef.current.rotation.y += 0.005;
-
-        } else if (keyboardRef.current.scale.x !== 1 && keyboardRef.current.scale.y !== 1 && keyboardRef.current.scale.z !== 1 ){
-            keyboardRef.current.scale.x += (0.5 + keyboardRef.current.scale.x) * 0.005;
-            keyboardRef.current.scale.y += (0.5 + keyboardRef.current.scale.y) * 0.005;
-            keyboardRef.current.scale.z += (0.5 + keyboardRef.current.scale.z) * 0.005;
-        }
-    });
-
-    useEffect(() => {
-        if (!exploded) {
-            const scaleBackInterval = setInterval(() => {
-                keyboardRef.current.scale.x += (1 - keyboardRef.current.scale.x) * 0.005;
-                keyboardRef.current.scale.y += (1 - keyboardRef.current.scale.y) * 0.005;
-                keyboardRef.current.scale.z += (1 - keyboardRef.current.scale.z) * 0.005;
-
-                if (
-                    Math.abs(keyboardRef.current.scale.x - 1) < 0.01 &&
-                    Math.abs(keyboardRef.current.scale.y - 1) < 0.01 &&
-                    Math.abs(keyboardRef.current.scale.z - 1) < 0.01
-                ) {
-                    keyboardRef.current.scale.set(1, 1, 1);
-                    clearInterval(scaleBackInterval);
-                }
-            }, 1000 / 60);
-
-            return () => {
-                clearInterval(scaleBackInterval);
-            };
-        }
-    }, [exploded]);
-
-
     return(
+        <group>
         <mesh ref={keyboardRef} position={[0, 0, -15]}>
             <boxGeometry args={[1, 1, 1]} />
             <meshStandardMaterial
@@ -318,7 +266,7 @@ const Objects = ({ audioSrc }) =>{
             </mesh>
 
         </mesh>
-
+        </group>
     );
 }
 export default Objects;
