@@ -10,6 +10,7 @@ You cannot use this song anywhere or claim it.
 
 # Instructions
 Might lag on slower/older Pc´s
+* Make sure that, your browser allows Auto-play on audio and videos.
 * type in the terminal "npm install"
 * type "npm start" into the terminal and it should start the website.
 
