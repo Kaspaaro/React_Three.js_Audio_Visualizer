@@ -9,8 +9,6 @@ Made by Kaspar Tullus (Me)
 You cannot use this song anywhere or claim it.
 
 # Instructions
-Might lag on slower/older Pc´s
-* type in the terminal "npm install"
-* type "npm start" into the terminal and it should start the website.
+type "npm start" into the terminal and it should start the website.
 
 Enjoy!

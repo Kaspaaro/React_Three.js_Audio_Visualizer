@@ -1,48 +1,43 @@
-import React, {useEffect, useMemo, useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {useFrame, useLoader} from "@react-three/fiber";
-import {Color, RepeatWrapping, TextureLoader} from "three";
-const Objects = ({ audioSrc,analyser,audioContext }) =>{
-    const keyboardRef = useRef();
-    const meshrefBassBlock = useRef();
-    const meshrefBassBlockTwo = useRef();
-    const meshrefBassBlockThree = useRef();
-    const meshrefzplus = useRef();
-    const meshrefzminus = useRef();
-    const meshrefxplus = useRef();
-    const meshrefxminus = useRef();
-    const meshrefyplus = useRef();
-    const meshrefyminus = useRef();
-    const bgObjectsRef = useRef([]);
-    const bgObjectLightRef = useRef([]);
+import {RepeatWrapping, TextureLoader} from "three";
 
-
-    const roughnessTexture = useLoader(TextureLoader, `${process.env.PUBLIC_URL}/Textures/Obsidian/Obsidianroughness.jpg`);
-    const normalTexture = useLoader(TextureLoader, `${process.env.PUBLIC_URL}/Textures/Obsidian/Obsidiannormal.jpg`);
-    const bumpTexture = useLoader(TextureLoader, `${process.env.PUBLIC_URL}/Textures/Obsidian/Obsidianheight.png`);
-    const AOTexture = useLoader(TextureLoader, `${process.env.PUBLIC_URL}/Textures/Obsidian/ObsidianambientOcclusion.jpg`);
-    bumpTexture.wrapS = bumpTexture.wrapT = RepeatWrapping;
+const Objects = ({ audioSrc }) =>{
+    // Create an AudioContext
+    const keyboardRef = useRef(), meshrefBassBlock = useRef(), meshrefBassBlockTwo = useRef(),
+        meshrefBassBlockThree = useRef(), meshrefzplus = useRef(), meshrefzminus = useRef(), meshrefxplus = useRef(),
+        meshrefxminus = useRef(), meshrefyplus = useRef(),
+        meshrefyminus = useRef(), [exploded, setExploded] = useState(false),
+        audioContext = new (window.AudioContext || window.webkitAudioContext)(),
+        analyser = audioContext.createAnalyser(),
+        roughnessTexture = useLoader(TextureLoader, `${process.env.PUBLIC_URL}/Textures/Obsidian/Obsidianroughness.jpg`),
+        normalTexture = useLoader(TextureLoader, `${process.env.PUBLIC_URL}/Textures/Obsidian/Obsidiannormal.jpg`),
+        bumpTexture = useLoader(TextureLoader, `${process.env.PUBLIC_URL}/Textures/Obsidian/Obsidianheight.png`),
+        AOTexture = useLoader(TextureLoader, `${process.env.PUBLIC_URL}/Textures/Obsidian/ObsidianambientOcclusion.jpg`);
+        bumpTexture.wrapS = bumpTexture.wrapT = RepeatWrapping;
 
     // Load audio file
     useEffect(() => {
-        const audioElement = new Audio(audioSrc);
-        const source = audioContext.createMediaElementSource(audioElement);
-        source.connect(analyser);
-        analyser.connect(audioContext.destination);
+            const audioElement = new Audio(audioSrc);
+            const source = audioContext.createMediaElementSource(audioElement);
+            source.connect(analyser);
+            analyser.connect(audioContext.destination);
 
-        audioElement.play();
-
-        const handleEnded = () => {
-            audioElement.currentTime = 0;
             audioElement.play();
-        };
 
-        audioElement.addEventListener('ended', handleEnded);
+            const handleEnded = () => {
+                audioElement.currentTime = 0;
+                audioElement.play();
+            };
 
-        return () => {
-            audioElement.removeEventListener('ended', handleEnded);
-        };
+            audioElement.addEventListener('ended', handleEnded);
 
-    }, [audioSrc, audioContext, analyser]);
+            return () => {
+                audioElement.removeEventListener('ended', handleEnded);
+            };
+
+        },
+        [audioSrc, audioContext, analyser]);
 
     useFrame(() => {
         function lerp(start, end, t) {
@@ -54,16 +49,12 @@ const Objects = ({ audioSrc,analyser,audioContext }) =>{
 
         const dataArray = new Uint8Array(analyser.frequencyBinCount);
         analyser.getByteFrequencyData(dataArray);
-        const bassStartIndex = 0;
-        const bassEndIndex = 1500;
-        const interpolationFactor = 0.01;
-        const bassData = dataArray.slice(bassStartIndex, bassEndIndex);
+        const bassStartIndex = 0, bassEndIndex = 1500, interpolationFactor = 0.01,
+            bassData = dataArray.slice(bassStartIndex, bassEndIndex),
+            average = dataArray.reduce((acc, val) => acc + val, 0) / dataArray.length,
+            averageBass = bassData.reduce((acc, val) => acc + val, 0) / bassData.length,
+            scaleFactor = (average / 255) * 5, bassScaleFactor = (averageBass / 150) * 5;
 
-        const average = dataArray.reduce((acc, val) => acc + val, 0) / dataArray.length;
-        const averageBass = bassData.reduce((acc, val) => acc + val, 0) / bassData.length;
-
-        const scaleFactor = (average / 255) * 5;
-        const bassScaleFactor = (averageBass / 150) * 5;
 
         keyboardRef.current.scale.y = 1 + scaleFactor;
         keyboardRef.current.scale.x = 1 + scaleFactor;
@@ -77,39 +68,49 @@ const Objects = ({ audioSrc,analyser,audioContext }) =>{
         meshrefxplus.current.position.x = 0.3 + scaleFactor
         meshrefyminus.current.position.y = -0.3 - scaleFactor
         meshrefyplus.current.position.y = 0.3 + scaleFactor
+
         //BassSection
         if (bassScaleFactor > 1.6234){
-            const targetScale = 0.3 + bassScaleFactor * 2;
-            const targetScaleTwo = 0.5 + bassScaleFactor * 2 ;
-            const targetScaleThree = 0.4 + bassScaleFactor * 3;
+            const targetScale = 0.3 + bassScaleFactor * 2, targetScaleTwo = 0.5 + bassScaleFactor * 2,
+                targetScaleThree = 0.4 + bassScaleFactor * 3, t = Math.easeOutCubic(0.1);
 
-            const t = Math.easeOutCubic(0.1);
             meshrefBassBlock.current.scale.y = lerp(meshrefBassBlock.current.scale.y, targetScale, t)
-            meshrefBassBlock.current.scale.x = lerp(meshrefBassBlock.current.scale.x, targetScale, t)
-            meshrefBassBlock.current.scale.z = lerp(meshrefBassBlock.current.scale.z, targetScale, t)
+            meshrefBassBlock.current.scale.x = lerp(meshrefBassBlock.current.scale.y, targetScale, t)
+            meshrefBassBlock.current.scale.z = lerp(meshrefBassBlock.current.scale.y, targetScale, t)
 
             meshrefBassBlockTwo.current.scale.y = lerp(meshrefBassBlockTwo.current.scale.y, targetScaleTwo, t)
-            meshrefBassBlockTwo.current.scale.x = lerp(meshrefBassBlockTwo.current.scale.x, targetScaleTwo, t)
-            meshrefBassBlockTwo.current.scale.z = lerp(meshrefBassBlockTwo.current.scale.z, targetScaleTwo, t)
+            meshrefBassBlockTwo.current.scale.x = lerp(meshrefBassBlockTwo.current.scale.y, targetScaleTwo, t)
+            meshrefBassBlockTwo.current.scale.z = lerp(meshrefBassBlockTwo.current.scale.y, targetScaleTwo, t)
 
             meshrefBassBlockThree.current.scale.y = lerp(meshrefBassBlockThree.current.scale.y, targetScaleThree, t)
-            meshrefBassBlockThree.current.scale.x = lerp(meshrefBassBlockThree.current.scale.x, targetScaleThree, t)
-            meshrefBassBlockThree.current.scale.z = lerp(meshrefBassBlockThree.current.scale.z, targetScaleThree, t)
+            meshrefBassBlockThree.current.scale.x = lerp(meshrefBassBlockThree.current.scale.y, targetScaleThree, t)
+            meshrefBassBlockThree.current.scale.z = lerp(meshrefBassBlockThree.current.scale.y, targetScaleThree, t)
         }else{
             meshrefBassBlock.current.scale.y = lerp(meshrefBassBlock.current.scale.y, 0, interpolationFactor)
-            meshrefBassBlock.current.scale.x = lerp(meshrefBassBlock.current.scale.x, 0, interpolationFactor)
-            meshrefBassBlock.current.scale.z = lerp(meshrefBassBlock.current.scale.z, 0, interpolationFactor)
+            meshrefBassBlock.current.scale.x = lerp(meshrefBassBlock.current.scale.y, 0, interpolationFactor)
+            meshrefBassBlock.current.scale.z = lerp(meshrefBassBlock.current.scale.y, 0, interpolationFactor)
 
             meshrefBassBlockTwo.current.scale.y = lerp(meshrefBassBlockTwo.current.scale.y, 0, interpolationFactor)
-            meshrefBassBlockTwo.current.scale.x = lerp(meshrefBassBlockTwo.current.scale.x, 0, interpolationFactor)
-            meshrefBassBlockTwo.current.scale.z = lerp(meshrefBassBlockTwo.current.scale.z, 0, interpolationFactor)
+            meshrefBassBlockTwo.current.scale.x = lerp(meshrefBassBlockTwo.current.scale.y, 0, interpolationFactor)
+            meshrefBassBlockTwo.current.scale.z = lerp(meshrefBassBlockTwo.current.scale.y, 0, interpolationFactor)
 
             meshrefBassBlockThree.current.scale.y = lerp(meshrefBassBlockThree.current.scale.y, 0, interpolationFactor)
-            meshrefBassBlockThree.current.scale.x = lerp(meshrefBassBlockThree.current.scale.x, 0, interpolationFactor)
-            meshrefBassBlockThree.current.scale.z = lerp(meshrefBassBlockThree.current.scale.z, 0, interpolationFactor)
+            meshrefBassBlockThree.current.scale.x = lerp(meshrefBassBlockThree.current.scale.y, 0, interpolationFactor)
+            meshrefBassBlockThree.current.scale.z = lerp(meshrefBassBlockThree.current.scale.y, 0, interpolationFactor)
         }
 
+        console.log(bassScaleFactor)
     });
+    const handleClick = () => {
+        setExploded(!exploded);
+
+        setTimeout(() => {
+            setExploded(false);
+        }, 6000);
+
+    };
+
+
 
     useFrame(() => {
         if (keyboardRef.current) {
@@ -118,8 +119,45 @@ const Objects = ({ audioSrc,analyser,audioContext }) =>{
         }
     });
 
+
+    useFrame(() => {
+        if (exploded) {
+            keyboardRef.current.scale.multiplyScalar(0.98);
+            keyboardRef.current.rotation.x += 0.005;
+            keyboardRef.current.rotation.y += 0.005;
+
+        } else if (keyboardRef.current.scale.x !== 1 && keyboardRef.current.scale.y !== 1 && keyboardRef.current.scale.z !== 1 ){
+            keyboardRef.current.scale.x += (0.5 + keyboardRef.current.scale.x) * 0.005;
+            keyboardRef.current.scale.y += (0.5 + keyboardRef.current.scale.y) * 0.005;
+            keyboardRef.current.scale.z += (0.5 + keyboardRef.current.scale.z) * 0.005;
+        }
+    });
+
+    useEffect(() => {
+        if (!exploded) {
+            const scaleBackInterval = setInterval(() => {
+                keyboardRef.current.scale.x += (1 - keyboardRef.current.scale.x) * 0.005;
+                keyboardRef.current.scale.y += (1 - keyboardRef.current.scale.y) * 0.005;
+                keyboardRef.current.scale.z += (1 - keyboardRef.current.scale.z) * 0.005;
+
+                if (
+                    Math.abs(keyboardRef.current.scale.x - 1) < 0.01 &&
+                    Math.abs(keyboardRef.current.scale.y - 1) < 0.01 &&
+                    Math.abs(keyboardRef.current.scale.z - 1) < 0.01
+                ) {
+                    keyboardRef.current.scale.set(1, 1, 1);
+                    clearInterval(scaleBackInterval);
+                }
+            }, 1000 / 60);
+
+            return () => {
+                clearInterval(scaleBackInterval);
+            };
+        }
+    }, [exploded]);
+
+
     return(
-        <group>
         <mesh ref={keyboardRef} position={[0, 0, -15]}>
             <boxGeometry args={[1, 1, 1]} />
             <meshStandardMaterial
@@ -266,7 +304,7 @@ const Objects = ({ audioSrc,analyser,audioContext }) =>{
             </mesh>
 
         </mesh>
-        </group>
+
     );
 }
 export default Objects;
