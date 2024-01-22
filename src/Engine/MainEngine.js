@@ -25,20 +25,6 @@ const Engine = () =>{
     ));
     const audioSrc = process.env.PUBLIC_URL + '/song.mp3';
 
-    const [showModal, setShowModal] = useState(false);
-
-    useEffect(() => {
-        const userAgent = navigator.userAgent.toLowerCase();
-
-        if (userAgent.includes('chrome') || userAgent.includes('firefox')) {
-            setShowModal(true);
-        }
-    }, []);
-
-    const handleCloseModal = () => {
-        setShowModal(false);
-    };
-
 return (
         <div style={{ width: '100%', height: '100vh', overflow: 'hidden' }}>
             <div id={'programCreds'}> <p>Audio Visualizer by Kaspar Tullus (Github: Kaspaaro)</p></div>

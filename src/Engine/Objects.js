@@ -22,12 +22,22 @@ const Objects = ({ audioSrc }) =>{
             const source = audioContext.createMediaElementSource(audioElement);
             source.connect(analyser);
             analyser.connect(audioContext.destination);
-
-            audioElement.play();
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ audio: true })
+                    .then(function (stream) {
+                        console.log("Audio access granted");
+                        audioElement.play().then(r => console.log(r));
+                    })
+                    .catch(function (error) {
+                        console.error("Error accessing Audio:", error);
+                    });
+            } else {
+                console.error("getUserMedia not supported in this browser");
+            }
 
             const handleEnded = () => {
                 audioElement.currentTime = 0;
-                audioElement.play();
+                audioElement.play().then(r => console.log(r));
             };
 
             audioElement.addEventListener('ended', handleEnded);
