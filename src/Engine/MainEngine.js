@@ -40,22 +40,6 @@ const Engine = () =>{
     };
 
 return (
-    <div>
-    <div className={"instructions"}>
-        {showModal && (
-            <div className="autoplay-instructions-modal">
-                <h1>PLEASE READ</h1>
-                <p className={"instruction-text"}>
-                    Autoplay is required for the best experience and for the website to function.
-                    enable autoplay in your browser settings.<br/>
-                    You can also press the premission button next to the url bar, to give the website premission to use audio.<br/>
-                    after that refresh the page.
-                </p>
-                <button className={"closeButton"} onClick={handleCloseModal}>Close</button>
-            </div>
-        )}
-    </div>
-
         <div style={{ width: '100%', height: '100vh', overflow: 'hidden' }}>
             <div id={'programCreds'}> <p>Audio Visualizer by Kaspar Tullus (Github: Kaspaaro)</p></div>
             <div id={'audioCreds'}> <p>Audio by Kaspar Tullus (Github: Kaspaaro)</p></div>
@@ -77,7 +61,6 @@ return (
                 </EffectComposer>
             </Canvas>
         </div>
-    </div>
     );
 }
 
