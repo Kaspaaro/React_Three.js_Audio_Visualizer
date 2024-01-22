@@ -20,7 +20,14 @@
     animation: App-logo-spin infinite 20s linear;
   }
 }
-
+.instructions {
+  align-content: center;
+  text-align: center;
+  background-color: #ffffff;
+}
+.autoplay-instructions-modal{
+  text-align: center;
+}
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
