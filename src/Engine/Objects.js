@@ -16,6 +16,10 @@ const Objects = ({ audioSrc }) =>{
         AOTexture = useLoader(TextureLoader, `${process.env.PUBLIC_URL}/Textures/Obsidian/ObsidianambientOcclusion.jpg`);
         bumpTexture.wrapS = bumpTexture.wrapT = RepeatWrapping;
 
+        const metalness = 1;
+        const roughness = 4;
+        const bumpScale = 5;
+        const normalScale = 1;
     // Load audio file
     useEffect(() => {
             const audioElement = new Audio(audioSrc);
@@ -56,6 +60,11 @@ const Objects = ({ audioSrc }) =>{
         Math.easeOutCubic = function(t) {
             return 1 - Math.pow(1 - t, 3);
         };
+
+        if (keyboardRef.current) {
+            keyboardRef.current.rotation.x += 0.01;
+            keyboardRef.current.rotation.y += 0.01;
+        }
 
         const dataArray = new Uint8Array(analyser.frequencyBinCount);
         analyser.getByteFrequencyData(dataArray);
@@ -111,60 +120,6 @@ const Objects = ({ audioSrc }) =>{
 
         console.log(bassScaleFactor)
     });
-    const handleClick = () => {
-        setExploded(!exploded);
-
-        setTimeout(() => {
-            setExploded(false);
-        }, 6000);
-
-    };
-
-
-
-    useFrame(() => {
-        if (keyboardRef.current) {
-            keyboardRef.current.rotation.x += 0.01;
-            keyboardRef.current.rotation.y += 0.01;
-        }
-    });
-
-
-    useFrame(() => {
-        if (exploded) {
-            keyboardRef.current.scale.multiplyScalar(0.98);
-            keyboardRef.current.rotation.x += 0.005;
-            keyboardRef.current.rotation.y += 0.005;
-
-        } else if (keyboardRef.current.scale.x !== 1 && keyboardRef.current.scale.y !== 1 && keyboardRef.current.scale.z !== 1 ){
-            keyboardRef.current.scale.x += (0.5 + keyboardRef.current.scale.x) * 0.005;
-            keyboardRef.current.scale.y += (0.5 + keyboardRef.current.scale.y) * 0.005;
-            keyboardRef.current.scale.z += (0.5 + keyboardRef.current.scale.z) * 0.005;
-        }
-    });
-
-    useEffect(() => {
-        if (!exploded) {
-            const scaleBackInterval = setInterval(() => {
-                keyboardRef.current.scale.x += (1 - keyboardRef.current.scale.x) * 0.005;
-                keyboardRef.current.scale.y += (1 - keyboardRef.current.scale.y) * 0.005;
-                keyboardRef.current.scale.z += (1 - keyboardRef.current.scale.z) * 0.005;
-
-                if (
-                    Math.abs(keyboardRef.current.scale.x - 1) < 0.01 &&
-                    Math.abs(keyboardRef.current.scale.y - 1) < 0.01 &&
-                    Math.abs(keyboardRef.current.scale.z - 1) < 0.01
-                ) {
-                    keyboardRef.current.scale.set(1, 1, 1);
-                    clearInterval(scaleBackInterval);
-                }
-            }, 1000 / 60);
-
-            return () => {
-                clearInterval(scaleBackInterval);
-            };
-        }
-    }, [exploded]);
 
 
     return(
@@ -172,12 +127,12 @@ const Objects = ({ audioSrc }) =>{
             <boxGeometry args={[1, 1, 1]} />
             <meshStandardMaterial
                 roughnessMap={roughnessTexture}
-                roughness={7}
-                metalness={1}
+                roughness={roughness}
+                metalness={metalness}
                 bumpMap={bumpTexture}
-                bumpScale={10}
+                bumpScale={bumpScale}
                 normalMap={normalTexture}
-                normalScale={2}
+                normalScale={normalScale}
                 aoMap={AOTexture}
             />
 
@@ -185,12 +140,12 @@ const Objects = ({ audioSrc }) =>{
                 <boxGeometry args={[0.5, 0.5, 0.5]} />
                 <meshStandardMaterial
                     roughnessMap={roughnessTexture}
-                    roughness={0.5}
-                    metalness={1}
+                    roughness={roughness}
+                    metalness={metalness}
                     bumpMap={bumpTexture}
-                    bumpScale={10}
+                    bumpScale={bumpScale}
                     normalMap={normalTexture}
-                    normalScale={2}
+                    normalScale={normalScale}
                     aoMap={AOTexture}
                     transparent = {true}
                     opacity ={0.2}
@@ -201,12 +156,12 @@ const Objects = ({ audioSrc }) =>{
                 <boxGeometry args={[0.5, 0.5, 0.5]} />
                 <meshStandardMaterial
                     roughnessMap={roughnessTexture}
-                    roughness={0.5}
-                    metalness={1}
+                    roughness={roughness}
+                    metalness={metalness}
                     bumpMap={bumpTexture}
-                    bumpScale={10}
+                    bumpScale={bumpScale}
                     normalMap={normalTexture}
-                    normalScale={2}
+                    normalScale={normalScale}
                     aoMap={AOTexture}
                     transparent = {true}
                     opacity ={0.3}
@@ -217,12 +172,12 @@ const Objects = ({ audioSrc }) =>{
                 <boxGeometry args={[0.5, 0.5, 0.5]} />
                 <meshStandardMaterial
                     roughnessMap={roughnessTexture}
-                    roughness={0.5}
-                    metalness={1}
+                    roughness={roughness}
+                    metalness={metalness}
                     bumpMap={bumpTexture}
-                    bumpScale={10}
+                    bumpScale={bumpScale}
                     normalMap={normalTexture}
-                    normalScale={2}
+                    normalScale={normalScale}
                     aoMap={AOTexture}
                     transparent = {true}
                     opacity ={0.09}
@@ -233,12 +188,12 @@ const Objects = ({ audioSrc }) =>{
                 <boxGeometry args={[0.5, 0.5, 0.5]} />
                 <meshStandardMaterial
                     roughnessMap={roughnessTexture}
-                    roughness={0.5}
-                    metalness={1}
+                    roughness={roughness}
+                    metalness={metalness}
                     bumpMap={bumpTexture}
-                    bumpScale={10}
+                    bumpScale={bumpScale}
                     normalMap={normalTexture}
-                    normalScale={2}
+                    normalScale={normalScale}
                     aoMap={AOTexture}
                 />
             </mesh>
@@ -247,12 +202,13 @@ const Objects = ({ audioSrc }) =>{
                 <boxGeometry args={[0.5, 0.5, 0.5]} />
                 <meshStandardMaterial
                     roughnessMap={roughnessTexture}
-                    roughness={0.5}
-                    metalness={1}
+                    roughness={roughness}
+                    metalness={metalness}
                     bumpMap={bumpTexture}
-                    bumpScale={10}
+                    bumpScale={bumpScale}
                     normalMap={normalTexture}
-                    normalScale={2}
+                    normalScale={normalScale}
+                    color = {'blue'}
                     aoMap={AOTexture}
                 />
             </mesh>
@@ -261,12 +217,13 @@ const Objects = ({ audioSrc }) =>{
                 <boxGeometry args={[0.5, 0.5, 0.5]} />
                 <meshStandardMaterial
                     roughnessMap={roughnessTexture}
-                    roughness={0.5}
-                    metalness={1}
+                    roughness={roughness}
+                    metalness={metalness}
                     bumpMap={bumpTexture}
-                    bumpScale={10}
+                    bumpScale={bumpScale}
                     normalMap={normalTexture}
-                    normalScale={2}
+                    color = {'red'}
+                    normalScale={normalScale}
                     aoMap={AOTexture}
                 />
             </mesh>
@@ -275,12 +232,13 @@ const Objects = ({ audioSrc }) =>{
                 <boxGeometry args={[0.5, 0.5, 0.5]} />
                 <meshStandardMaterial
                     roughnessMap={roughnessTexture}
-                    roughness={0.5}
-                    metalness={1}
+                    roughness={roughness}
+                    metalness={metalness}
                     bumpMap={bumpTexture}
-                    bumpScale={10}
+                    color = {'gold'}
+                    bumpScale={bumpScale}
                     normalMap={normalTexture}
-                    normalScale={2}
+                    normalScale={normalScale}
                     aoMap={AOTexture}
                 />
             </mesh>
@@ -289,12 +247,13 @@ const Objects = ({ audioSrc }) =>{
                 <boxGeometry args={[0.5, 0.5, 0.5]} />
                 <meshStandardMaterial
                     roughnessMap={roughnessTexture}
-                    roughness={0.5}
-                    metalness={1}
+                    roughness={roughness}
+                    metalness={metalness}
                     bumpMap={bumpTexture}
-                    bumpScale={10}
+                    color = {'green'}
+                    bumpScale={bumpScale}
                     normalMap={normalTexture}
-                    normalScale={2}
+                    normalScale={normalScale}
                     aoMap={AOTexture}
                 />
             </mesh>
@@ -303,12 +262,13 @@ const Objects = ({ audioSrc }) =>{
                 <boxGeometry args={[0.5, 0.5, 0.5]} />
                 <meshStandardMaterial
                     roughnessMap={roughnessTexture}
-                    roughness={0.5}
-                    metalness={1}
+                    roughness={roughness}
+                    metalness={metalness}
                     bumpMap={bumpTexture}
-                    bumpScale={10}
+                    bumpScale={bumpScale}
+                    color = {'cyan'}
                     normalMap={normalTexture}
-                    normalScale={2}
+                    normalScale={normalScale}
                     aoMap={AOTexture}
                 />
             </mesh>

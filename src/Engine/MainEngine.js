@@ -15,7 +15,7 @@ const Engine = () =>{
         return Math.random() * range - range / 2;
     };
 
-    const directionalLights = Array.from({ length: 15 }, (_, index) => (
+    const directionalLights = Array.from({ length: 5 }, (_, index) => (
         <directionalLight
             key={index}
             position={[getRandomPosition(), getRandomPosition(), getRandomPosition()]}
